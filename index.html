@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gully Cricket Scorekeeper</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #5A9BB0;
+            color: white;
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+        }
+        .tabs .active {
+            border-bottom: 3px solid white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-6 max-w-md">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold text-center mb-2">Gully Cricket</h1>
+            <p class="text-center text-white text-opacity-80">Score your street cricket matches like pros!</p>
+        </header>
+
+        <div id="app">
+            <!-- Main Screens -->
+            <div id="screens">
+                <!-- Home Screen -->
+                <div id="homeScreen" class="screen">
+                    <div class="card p-6 mb-6">
+                        <h2 class="text-xl font-semibold mb-4">My Matches</h2>
+                        <div id="matchesList" class="space-y-3">
+                            <p class="text-center text-white text-opacity-70 py-4">No matches yet. Start a new match!</p>
+                        </div>
+                    </div>
+                    <button id="newMatchBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full w-full btn">
+                        <i class="bi bi-plus-circle mr-2"></i> New Match
+                    </button>
+                </div>
+
+                <!-- New Match Setup -->
+                <div id="matchSetupScreen" class="screen hidden">
+                    <div class="card p-6 mb-6">
+                        <h2 class="text-xl font-semibold mb-4">New Match Setup</h2>
+                        
+                        <div class="mb-4">
+                            <label class="block mb-2">Match Name</label>
+                            <input type="text" id="matchName" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" placeholder="Sunday Showdown">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-2">Team A</label>
+                                <input type="text" id="teamA" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" placeholder="Street Kings">
+                            </div>
+                            <div>
+                                <label class="block mb-2">Team B</label>
+                                <input type="text" id="teamB" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" placeholder="Gully Warriors">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-2">Overs</label>
+                                <input type="number" id="overs" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" value="5" min="1">
+                            </div>
+                            <div>
+                                <label class="block mb-2">Players per team</label>
+                                <input type="number" id="players" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" value="7" min="2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button id="backToHomeBtn" class="bg-white bg-opacity-30 text-white font-bold py-3 px-6 rounded-full flex-1 btn">
+                            <i class="bi bi-arrow-left mr-2"></i> Back
+                        </button>
+                        <button id="proceedToTeamSetupBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full flex-1 btn">
+                            Next <i class="bi bi-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Team Setup Screen -->
+                <div id="teamSetupScreen" class="screen hidden">
+                    <div class="card p-6 mb-6">
+                        <div class="tabs flex justify-between mb-4 border-b border-white border-opacity-30 pb-2">
+                            <button id="teamATab" class="tab active px-3 py-2 text-center flex-1">Team A</button>
+                            <button id="teamBTab" class="tab px-3 py-2 text-center flex-1">Team B</button>
+                        </div>
+
+                        <div id="teamASetup" class="team-setup active">
+                            <h3 id="teamAName" class="text-lg font-semibold mb-3">Add Team A Players</h3>
+                            <div id="teamAPlayers" class="space-y-2 mb-4">
+                                <!-- Player inputs will be dynamically added here -->
+                            </div>
+                        </div>
+
+                        <div id="teamBSetup" class="team-setup hidden">
+                            <h3 id="teamBName" class="text-lg font-semibold mb-3">Add Team B Players</h3>
+                            <div id="teamBPlayers" class="space-y-2 mb-4">
+                                <!-- Player inputs will be dynamically added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button id="backToMatchSetupBtn" class="bg-white bg-opacity-30 text-white font-bold py-3 px-6 rounded-full flex-1 btn">
+                            <i class="bi bi-arrow-left mr-2"></i> Back
+                        </button>
+                        <button id="startMatchBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full flex-1 btn">
+                            Start Match <i class="bi bi-play-fill ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toss Screen -->
+                <div id="tossScreen" class="screen hidden">
+                    <div class="card p-6 mb-6 text-center">
+                        <h2 class="text-xl font-semibold mb-4">Toss Time!</h2>
+                        <p class="mb-6">Who won the toss?</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <button id="teamAToss" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-4 rounded-lg">
+                                <span id="teamATossName" class="block text-lg font-medium">Team A</span>
+                            </button>
+                            <button id="teamBToss" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-4 rounded-lg">
+                                <span id="teamBTossName" class="block text-lg font-medium">Team B</span>
+                            </button>
+                        </div>
+                        
+                        <div id="tossWinnerChoice" class="hidden mt-4">
+                            <p class="mb-4"><span id="tossWinnerName">Team</span> won the toss and elected to:</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button id="chooseBat" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg">
+                                    <i class="bi bi-tv text-xl mb-1"></i>
+                                    <span class="block">Bat</span>
+                                </button>
+                                <button id="chooseBowl" class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg">
+                                    <i class="bi bi-circle text-xl mb-1"></i>
+                                    <span class="block">Bowl</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Match Play Screen -->
+                <div id="matchPlayScreen" class="screen hidden">
+                    <div class="card p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 id="currentInningsTeam" class="text-lg font-bold">Team A: 0/0</h2>
+                            <div class="text-sm">
+                                <span id="currentOver">0.0</span>/<span id="totalOvers">5</span> Overs
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <div>CRR: <span id="currentRunRate">0.00</span></div>
+                            <div id="targetInfo" class="hidden">Target: <span id="targetRuns">0</span> (<span id="reqRunRate">0.00</span> RR)</div>
+                        </div>
+                    </div>
+
+                    <div class="card p-4 mb-4">
+                        <div class="flex justify-between mb-3">
+                            <div>
+                                <div class="text-sm opacity-70">Striker</div>
+                                <div id="striker" class="font-semibold">Batsman 1 *</div>
+                                <div id="strikerRuns" class="text-sm">0 (0)</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm opacity-70">Non-Striker</div>
+                                <div id="nonStriker" class="font-semibold">Batsman 2</div>
+                                <div id="nonStrikerRuns" class="text-sm">0 (0)</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm opacity-70">Bowler</div>
+                            <div id="currentBowler" class="font-semibold">Bowler</div>
+                            <div id="bowlerStats" class="text-sm">0/0 (0.0)</div>
+                        </div>
+                    </div>
+
+                    <div class="card p-4 mb-4">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-semibold">This Over</h3>
+                            <div id="ballsThisOver" class="text-sm">-</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <button data-runs="1" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">1</button>
+                            <button data-runs="2" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">2</button>
+                            <button data-runs="3" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">3</button>
+                            <button data-runs="4" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">4</button>
+                            <button data-runs="6" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">6</button>
+                            <button data-runs="0" class="run-btn bg-white bg-opacity-20 p-3 rounded-lg text-center">0</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="wideBtn" class="bg-white bg-opacity-20 p-2 rounded-lg text-center text-sm">Wide</button>
+                            <button id="noBallBtn" class="bg-white bg-opacity-20 p-2 rounded-lg text-center text-sm">No Ball</button>
+                            <button id="wicketBtn" class="bg-white bg-opacity-20 p-2 rounded-lg text-center text-sm">Wicket</button>
+                            <button id="endOverBtn" class="bg-white bg-opacity-20 p-2 rounded-lg text-center text-sm">End Over</button>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button id="viewScoreboardBtn" class="bg-white bg-opacity-30 text-white font-bold py-3 px-6 rounded-full flex-1 btn">
+                            <i class="bi bi-list-ul mr-2"></i> Scoreboard
+                        </button>
+                        <button id="endMatchBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full flex-1 btn">
+                            End Match
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Wicket Modal -->
+                <div id="wicketModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+                    <div class="bg-blue-700 p-6 rounded-xl max-w-sm w-full mx-4">
+                        <h3 class="text-xl font-bold mb-4">Wicket!</h3>
+                        <div class="mb-4">
+                            <label class="block mb-2">Dismissal Type</label>
+                            <select id="dismissalType" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                                <option value="bowled">Bowled</option>
+                                <option value="caught">Caught</option>
+                                <option value="lbw">LBW</option>
+                                <option value="runout">Run Out</option>
+                                <option value="stumped">Stumped</option>
+                                <option value="hitwicket">Hit Wicket</option>
+                            </select>
+                        </div>
+                        <div id="caughtByField" class="mb-4 hidden">
+                            <label class="block mb-2">Caught By</label>
+                            <select id="caughtBy" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div id="runoutByField" class="mb-4 hidden">
+                            <label class="block mb-2">Run Out By</label>
+                            <select id="runoutBy" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block mb-2">New Batsman</label>
+                            <select id="newBatsman" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button id="cancelWicketBtn" class="bg-white bg-opacity-30 text-white font-bold py-2 px-4 rounded-lg flex-1">Cancel</button>
+                            <button id="confirmWicketBtn" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg flex-1">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Bowler Modal -->
+                <div id="bowlerModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+                    <div class="bg-blue-700 p-6 rounded-xl max-w-sm w-full mx-4">
+                        <h3 class="text-xl font-bold mb-4">New Over</h3>
+                        <div class="mb-4">
+                            <label class="block mb-2">Select Bowler</label>
+                            <select id="newBowler" class="w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button id="cancelBowlerBtn" class="bg-white bg-opacity-30 text-white font-bold py-2 px-4 rounded-lg flex-1">Cancel</button>
+                            <button id="confirmBowlerBtn" class="bg-white text-blue-600 font-bold py-2 px-4 rounded-lg flex-1">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scoreboard Screen -->
+                <div id="scoreboardScreen" class="screen hidden">
+                    <div class="card p-4 mb-4">
+                        <h2 class="text-xl font-semibold mb-2">Match Scoreboard</h2>
+                        <div id="matchSummary" class="text-sm mb-4">
+                            <div id="team1Score">Team A: 0/0 (0.0)</div>
+                            <div id="team2Score" class="hidden">Team B: 0/0 (0.0)</div>
+                            <div id="matchResult" class="mt-2 font-bold hidden"></div>
+                        </div>
+
+                        <div class="tabs flex justify-between mb-4 border-b border-white border-opacity-30 pb-2">
+                            <button id="inningsATab" class="tab active px-3 py-2 text-center flex-1">Team A</button>
+                            <button id="inningsBTab" class="tab px-3 py-2 text-center flex-1">Team B</button>
+                        </div>
+
+                        <div id="inningsAStats" class="innings-stats">
+                            <h3 class="font-bold mb-2">Batting</h3>
+                            <div id="teamABatting" class="text-sm mb-4 overflow-x-auto">
+                                <table class="w-full min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-white border-opacity-20">
+                                            <th class="text-left pb-1">Batsman</th>
+                                            <th class="text-right pb-1">R</th>
+                                            <th class="text-right pb-1">B</th>
+                                            <th class="text-right pb-1">4s</th>
+                                            <th class="text-right pb-1">6s</th>
+                                            <th class="text-right pb-1">SR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamABattingStats">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h3 class="font-bold mb-2">Bowling</h3>
+                            <div id="teamBBowling" class="text-sm overflow-x-auto">
+                                <table class="w-full min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-white border-opacity-20">
+                                            <th class="text-left pb-1">Bowler</th>
+                                            <th class="text-right pb-1">O</th>
+                                            <th class="text-right pb-1">R</th>
+                                            <th class="text-right pb-1">W</th>
+                                            <th class="text-right pb-1">Econ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamBBowlingStats">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div id="inningsBStats" class="innings-stats hidden">
+                            <h3 class="font-bold mb-2">Batting</h3>
+                            <div id="teamBBatting" class="text-sm mb-4 overflow-x-auto">
+                                <table class="w-full min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-white border-opacity-20">
+                                            <th class="text-left pb-1">Batsman</th>
+                                            <th class="text-right pb-1">R</th>
+                                            <th class="text-right pb-1">B</th>
+                                            <th class="text-right pb-1">4s</th>
+                                            <th class="text-right pb-1">6s</th>
+                                            <th class="text-right pb-1">SR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamBBattingStats">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h3 class="font-bold mb-2">Bowling</h3>
+                            <div id="teamABowling" class="text-sm overflow-x-auto">
+                                <table class="w-full min-w-full">
+                                    <thead>
+                                        <tr class="border-b border-white border-opacity-20">
+                                            <th class="text-left pb-1">Bowler</th>
+                                            <th class="text-right pb-1">O</th>
+                                            <th class="text-right pb-1">R</th>
+                                            <th class="text-right pb-1">W</th>
+                                            <th class="text-right pb-1">Econ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamABowlingStats">
+                                        <!-- Dynamically populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="backToMatchBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full w-full btn">
+                        <i class="bi bi-arrow-left mr-2"></i> Back to Match
+                    </button>
+                </div>
+
+                <!-- Match Result Screen -->
+                <div id="matchResultScreen" class="screen hidden">
+                    <div class="card p-6 mb-6 text-center">
+                        <h2 class="text-2xl font-bold mb-2">Match Result</h2>
+                        <div id="finalMatchSummary" class="mb-6">
+                            <div class="text-lg mb-2" id="finalTeam1Score">Team A: 0/0 (0.0)</div>
+                            <div class="text-lg mb-4" id="finalTeam2Score">Team B: 0/0 (0.0)</div>
+                            <div class="text-xl font-bold" id="finalMatchResult">Match Result</div>
+                        </div>
+                        
+                        <div class="flex justify-center">
+                            <button id="viewFinalScoreboardBtn" class="bg-white bg-opacity-30 text-white font-bold py-3 px-6 rounded-full btn">
+                                <i class="bi bi-list-ul mr-2"></i> Full Scoreboard
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="returnToHomeBtn" class="bg-white text-blue-600 font-bold py-3 px-6 rounded-full w-full btn">
+                        Return to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // App State
+            const state = {
+                matches: [],
+                currentMatch: {
+                    id: null,
+                    name: '',
+                    teams: {
+                        teamA: {
+                            name: '',
+                            players: [],
+                            score: 0,
+                            wickets: 0,
+                            overs: 0,
+                            balls: 0
+                        },
+                        teamB: {
+                            name: '',
+                            players: [],
+                            score: 0,
+                            wickets: 0,
+                            overs: 0,
+                            balls: 0
+                        }
+                    },
+                    totalOvers: 5,
+                    playersPerTeam: 7,
+                    battingTeam: null,
+                    bowlingTeam: null,
+                    currentInnings: 1,
+                    striker: null,
+                    nonStriker: null,
+                    bowler: null,
+                    isCompleted: false
+                }
+            };
+
+            // Screen Management
+            const showScreen = (screenId) => {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.add('hidden');
+                });
+                document.getElementById(screenId).classList.remove('hidden');
+            };
+
+            // Initialize Local Storage
+            const initLocalStorage = () => {
+                if (!localStorage.getItem('gullyCricketMatches')) {
+                    localStorage.setItem('gullyCricketMatches', JSON.stringify([]));
+                }
+                state.matches = JSON.parse(localStorage.getItem('gullyCricketMatches'));
+                renderMatchesList();
+            };
+
+            // Render Matches List
+            const renderMatchesList = () => {
+                const matchesList = document.getElementById('matchesList');
+                if (state.matches.length === 0) {
+                    matchesList.innerHTML = '<p class="text-center text-white text-opacity-70 py-4">No matches yet. Start a new match!</p>';
+                    return;
+                }
+
+                matchesList.innerHTML = '';
+                state.matches.forEach(match => {
+                    const matchCard = document.createElement('div');
+                    matchCard.className = 'bg-white bg-opacity-20 p-4 rounded-lg';
+                    matchCard.innerHTML = `
+                        <h3 class="font-semibold">${match.name}</h3>
+                        <div class="flex justify-between text-sm mt-1">
+                            <span>${match.teams.teamA.name} vs ${match.teams.teamB.name}</span>
+                            <span>${match.isCompleted ? 'Completed' : 'In Progress'}</span>
+                        </div>
+                    `;
+                    matchesList.appendChild(matchCard);
+
+                    matchCard.addEventListener('click', () => {
+                        state.currentMatch = { ...match };
+                        if (match.isCompleted) {
+                            populateMatchResult();
+                            showScreen('matchResultScreen');
+                        } else {
+                            // Resume match
+                            setupMatchPlay();
+                            showScreen('matchPlayScreen');
+                        }
+                    });
+                });
+            };
+
+            // Create New Match
+            document.getElementById('newMatchBtn').addEventListener('click', () => {
+                // Reset current match state
+                state.currentMatch = {
+                    id: Date.now(),
+                    name: '',
+                    teams: {
+                        teamA: {
+                            name: '',
+                            players: [],
+                            score: 0,
+                            wickets: 0,
+                            overs: 0,
+                            balls: 0
+                        },
+                        teamB: {
+                            name: '',
+                            players: [],
+                            score: 0,
+                            wickets: 0,
+                            overs: 0,
+                            balls: 0
+                        }
+                    },
+                    totalOvers: 5,
+                    playersPerTeam: 7,
+                    battingTeam: null,
+                    bowlingTeam: null,
+                    currentInnings: 1,
+                    isCompleted: false
+                };
+                showScreen('matchSetupScreen');
+            });
+
+            // Match Setup Flow
+            document.getElementById('backToHomeBtn').addEventListener('click', () => {
+                showScreen('homeScreen');
+            });
+
+            document.getElementById('proceedToTeamSetupBtn').addEventListener('click', () => {
+                // Save match details
+                state.currentMatch.name = document.getElementById('matchName').value || 'Gully Cricket Match';
+                state.currentMatch.teams.teamA.name = document.getElementById('teamA').value || 'Team A';
+                state.currentMatch.teams.teamB.name = document.getElementById('teamB').value || 'Team B';
+                state.currentMatch.totalOvers = parseInt(document.getElementById('overs').value) || 5;
+                state.currentMatch.playersPerTeam = parseInt(document.getElementById('players').value) || 7;
+
+                // Update team setup tabs
+                document.getElementById('teamAName').innerText = `Add ${state.currentMatch.teams.teamA.name} Players`;
+                document.getElementById('teamBName').innerText = `Add ${state.currentMatch.teams.teamB.name} Players`;
+
+                // Create player input fields
+                createTeamPlayerInputs('teamAPlayers', state.currentMatch.playersPerTeam);
+                createTeamPlayerInputs('teamBPlayers', state.currentMatch.playersPerTeam);
+                
+                // Show team setup screen
+                showScreen('teamSetupScreen');
+            });
+
+            // Create player input fields
+            const createTeamPlayerInputs = (teamId, count) => {
+                const teamPlayersDiv = document.getElementById(teamId);
+                teamPlayersDiv.innerHTML = '';
+                
+                for (let i = 1; i <= count; i++) {
+                    const inputDiv = document.createElement('div');
+                    inputDiv.className = 'flex items-center';
+                    inputDiv.innerHTML = `
+                        <span class="mr-2 text-sm">${i}.</span>
+                        <input type="text" class="player-name w-full p-2 rounded bg-white bg-opacity-20 border border-white border-opacity-30 text-white" 
+                               placeholder="Player ${i}" value="Player ${i}">
+                    `;
+                    teamPlayersDiv.appendChild(inputDiv);
+                }
+            };
+
+            // Team Setup Tab Switching
+            document.getElementById('teamATab').addEventListener('click', () => {
+                document.getElementById('teamATab').classList.add('active');
+                document.getElementById('teamBTab').classList.remove('active');
+                document.getElementById('teamASetup').classList.remove('hidden');
+                document.getElementById('teamBSetup').classList.add('hidden');
+            });
+
+            document.getElementById('teamBTab').addEventListener('click', () => {
+                document.getElementById('teamBTab').classList.add('active');
+                document.getElementById('teamATab').classList.remove('active');
+                document.getElementById('teamBSetup').classList.remove('hidden');
+                document.getElementById('teamASetup').classList.add('hidden');
+            });
+
+            document.getElementById('backToMatchSetupBtn').addEventListener('click', () => {
+                showScreen('matchSetupScreen');
+            });
+
+            document.getElementById('startMatchBtn').addEventListener('click', () => {
+                // Save team players
+                const teamAInputs = document.querySelectorAll('#teamAPlayers .player-name');
+                state.currentMatch.teams.teamA.players = Array.from(teamAInputs).map(input => {
+                    return {
+                        name: input.value || 'Player',
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        status: 'Yet to bat',
+                        isOut: false,
+                        inningPlayed: 0,
+                        bowling: {
+                            overs: 0,
+                            balls: 0,
+                            runs: 0,
+                            wickets: 0
+                        }
+                    };
+                });
+
+                const teamBInputs = document.querySelectorAll('#teamBPlayers .player-name');
+                state.currentMatch.teams.teamB.players = Array.from(teamBInputs).map(input => {
+                    return {
+                        name: input.value || 'Player',
+                        runs: 0,
+                        balls: 0,
+                        fours: 0,
+                        sixes: 0,
+                        status: 'Yet to bat',
+                        isOut: false,
+                        inningPlayed: 0,
+                        bowling: {
+                            overs: 0,
+                            balls: 0,
+                            runs: 0,
+                            wickets: 0
+                        }
+                    };
+                });
+
+                // Setup toss screen
+                document.getElementById('teamATossName').innerText = state.currentMatch.teams.teamA.name;
+                document.getElementById('teamBTossName').innerText = state.currentMatch.teams.teamB.name;
+
+                showScreen('tossScreen');
+            });
+
+            // Toss Flow
+            document.getElementById('teamAToss').addEventListener('click', () => {
+                handleTossWinner('teamA');
+            });
+
+            document.getElementById('teamBToss').addEventListener('click', () => {
+                handleTossWinner('teamB');
+            });
+
+            const handleTossWinner = (winningTeam) => {
+                document.getElementById('tossWinnerName').innerText = state.currentMatch.teams[winningTeam].name;
+                document.getElementById('tossWinnerChoice').classList.remove('hidden');
+                
+                // Store toss winner
+                state.currentMatch.tossWinner = winningTeam;
+            };
+
+            document.getElementById('chooseBat').addEventListener('click', () => {
+                const tossWinner = state.currentMatch.tossWinner;
+                const tossLoser = tossWinner === 'teamA' ? 'teamB' : 'teamA';
+                
+                state.currentMatch.battingTeam = tossWinner;
+                state.currentMatch.bowlingTeam = tossLoser;
+                
+                setupInnings();
+                showScreen('matchPlayScreen');
+            });
+
+            document.getElementById('chooseBowl').addEventListener('click', () => {
+                const tossWinner = state.currentMatch.tossWinner;
+                const tossLoser = tossWinner === 'teamA' ? 'teamB' : 'teamA';
+                
+                state.currentMatch.battingTeam = tossLoser;
+                state.currentMatch.bowlingTeam = tossWinner;
+                
+                setupInnings();
+                showScreen('matchPlayScreen');
+            });
+
+            // Setup Innings Flow
+            const setupInnings = () => {
+                // Set up the first two batsmen
+                const battingPlayers = state.currentMatch.teams[state.currentMatch.battingTeam].players;
+                state.currentMatch.striker = 0;
+                state.currentMatch.nonStriker = 1;
+                
+                battingPlayers[0].status = 'Batting';
+                battingPlayers[1].status = 'Batting';
+                battingPlayers[0].inningPlayed = state.currentMatch.currentInnings;
+                battingPlayers[1].inningPlayed = state.currentMatch.currentInnings;
+                
+                // Choose bowler modal
+                showBowlerModal();
+            };
+
+            // Setup Match Play Screen
+            const setupMatchPlay = () => {
+                updateMatchPlayUI();
+                const totalOvers = state.currentMatch.totalOvers;
+                document.getElementById('totalOvers').innerText = totalOvers;
+
+                // Update target info for second innings
+                if (state.currentMatch.currentInnings === 2) {
+                    const target = state.currentMatch.teams[state.currentMatch.bowlingTeam].score + 1;
+                    document.getElementById('targetInfo').classList.remove('hidden');
+                    document.getElementById('targetRuns').innerText = target;
+                    updateRequiredRunRate();
+                }
+            };
+
+            // Update Match Play UI
+            const updateMatchPlayUI = () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const bowlingTeam = state.currentMatch.bowlingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                const bowling = state.currentMatch.teams[bowlingTeam];
+                
+                // Update score display
+                document.getElementById('currentInningsTeam').innerText = 
+                    `${batting.name}: ${batting.score}/${batting.wickets}`;
+                
+                // Update overs display
+                const oversCompleted = Math.floor(batting.balls / 6);
+                const ballsInCurrentOver = batting.balls % 6;
+                document.getElementById('currentOver').innerText = 
+                    `${oversCompleted}.${ballsInCurrentOver}`;
+                
+                // Update run rate
+                const totalBalls = batting.balls;
+                const runRate = totalBalls > 0 ? (batting.score / (totalBalls / 6)).toFixed(2) : '0.00';
+                document.getElementById('currentRunRate').innerText = runRate;
+                
+                // Update batsmen info
+                const striker = state.currentMatch.striker !== null ? batting.players[state.currentMatch.striker] : null;
+                const nonStriker = state.currentMatch.nonStriker !== null ? batting.players[state.currentMatch.nonStriker] : null;
+                
+                if (striker) {
+                    document.getElementById('striker').innerText = `${striker.name} *`;
+                    document.getElementById('strikerRuns').innerText = 
+                        `${striker.runs} (${striker.balls})`;
+                }
+                
+                if (nonStriker) {
+                    document.getElementById('nonStriker').innerText = nonStriker.name;
+                    document.getElementById('nonStrikerRuns').innerText = 
+                        `${nonStriker.runs} (${nonStriker.balls})`;
+                }
+                
+                // Update bowler info
+                const currentBowler = state.currentMatch.bowler !== null ? bowling.players[state.currentMatch.bowler] : null;
+                
+                if (currentBowler) {
+                    document.getElementById('currentBowler').innerText = currentBowler.name;
+                    const bowlerOvers = Math.floor(currentBowler.bowling.balls / 6);
+                    const bowlerBalls = currentBowler.bowling.balls % 6;
+                    document.getElementById('bowlerStats').innerText = 
+                        `${currentBowler.bowling.wickets}/${currentBowler.bowling.runs} (${bowlerOvers}.${bowlerBalls})`;
+                }
+                
+                // Update this over balls
+                updateOverBalls();
+            };
+
+            // Update balls display for current over
+            const updateOverBalls = () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                
+                // Get balls in current over
+                const ballsInMatch = batting.balls;
+                const ballsInOver = ballsInMatch % 6;
+                const currentOverStart = ballsInMatch - ballsInOver;
+                
+                const thisBallsElement = document.getElementById('ballsThisOver');
+                
+                if (batting.overHistory && batting.overHistory.length > 0) {
+                    // Display balls in current over from history
+                    const currentOverBalls = batting.overHistory.slice(-ballsInOver);
+                    thisBallsElement.innerText = currentOverBalls.join(' ');
+                } else {
+                    thisBallsElement.innerText = '-';
+                }
+            };
+
+            // Update required run rate for 2nd innings
+            const updateRequiredRunRate = () => {
+                if (state.currentMatch.currentInnings !== 2) return;
+                
+                const target = state.currentMatch.teams[state.currentMatch.bowlingTeam].score + 1;
+                const batting = state.currentMatch.teams[state.currentMatch.battingTeam];
+                const runsNeeded = target - batting.score;
+                const oversRemaining = state.currentMatch.totalOvers - (batting.balls / 6);
+                
+                if (runsNeeded <= 0) {
+                    document.getElementById('reqRunRate').innerText = '0.00';
+                    return;
+                }
+                
+                if (oversRemaining <= 0) {
+                    document.getElementById('reqRunRate').innerText = 'N/A';
+                    return;
+                }
+                
+                const reqRate = (runsNeeded / oversRemaining).toFixed(2);
+                document.getElementById('reqRunRate').innerText = reqRate;
+            };
+
+            // Register runs
+            document.querySelectorAll('.run-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const runs = parseInt(this.getAttribute('data-runs'));
+                    addRuns(runs);
+                });
+            });
+
+            // Add runs
+            const addRuns = (runs) => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const bowling = state.currentMatch.bowlingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                const striker = batting.players[state.currentMatch.striker];
+                const bowler = state.currentMatch.teams[bowling].players[state.currentMatch.bowler];
+                
+                // Update batsman stats
+                striker.runs += runs;
+                striker.balls += 1;
+                
+                if (runs === 4) striker.fours += 1;
+                if (runs === 6) striker.sixes += 1;
+                
+                // Update team score
+                batting.score += runs;
+                batting.balls += 1;
+                
+                // Update bowler stats
+                bowler.bowling.runs += runs;
+                bowler.bowling.balls += 1;
+                
+                // Track ball in over history
+                if (!batting.overHistory) batting.overHistory = [];
+                batting.overHistory.push(runs.toString());
+                
+                // Switch striker if odd runs
+                if (runs % 2 === 1) {
+                    switchStriker();
+                }
+                
+                // Check if over completed
+                checkOverEnd();
+                
+                // Update UI
+                updateMatchPlayUI();
+                
+                // Check if innings or match completed
+                checkInningsEnd();
+            };
+
+            // Handle wide ball
+            document.getElementById('wideBtn').addEventListener('click', () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const bowling = state.currentMatch.bowlingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                const bowler = state.currentMatch.teams[bowling].players[state.currentMatch.bowler];
+                
+                // Add 1 run
+                batting.score += 1;
+                bowler.bowling.runs += 1;
+                
+                // Track ball in over history
+                if (!batting.overHistory) batting.overHistory = [];
+                batting.overHistory.push('Wd');
+                
+                // Update UI
+                updateMatchPlayUI();
+                updateRequiredRunRate();
+            });
+
+            // Handle no ball
+            document.getElementById('noBallBtn').addEventListener('click', () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const bowling = state.currentMatch.bowlingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                const bowler = state.currentMatch.teams[bowling].players[state.currentMatch.bowler];
+                
+                // Add 1 run
+                batting.score += 1;
+                bowler.bowling.runs += 1;
+                
+                // Track ball in over history
+                if (!batting.overHistory) batting.overHistory = [];
+                batting.overHistory.push('Nb');
+                
+                // Update UI
+                updateMatchPlayUI();
+                updateRequiredRunRate();
+            });
+
+            // Handle wicket
+            document.getElementById('wicketBtn').addEventListener('click', () => {
+                showWicketModal();
+            });
+
+            // Show wicket modal
+            const showWicketModal = () => {
+                document.getElementById('wicketModal').classList.remove('hidden');
+                
+                // Get fielding team players for caught/runout
+                const fieldingTeam = state.currentMatch.teams[state.currentMatch.bowlingTeam].players;
+                const caughtBySelect = document.getElementById('caughtBy');
+                const runoutBySelect = document.getElementById('runoutBy');
+                
+                caughtBySelect.innerHTML = '';
+                runoutBySelect.innerHTML = '';
+                
+                fieldingTeam.forEach((player, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.innerText = player.name;
+                    caughtBySelect.appendChild(option.cloneNode(true));
+                    runoutBySelect.appendChild(option);
+                });
+                
+                // Get available batsmen for replacement
+                const battingTeam = state.currentMatch.teams[state.currentMatch.battingTeam];
+                const newBatsmanSelect = document.getElementById('newBatsman');
+                
+                newBatsmanSelect.innerHTML = '';
+                
+                battingTeam.players.forEach((player, index) => {
+                    if (!player.isOut && player.status === 'Yet to bat' && 
+                        index !== state.currentMatch.striker && 
+                        index !== state.currentMatch.nonStriker) {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.innerText = player.name;
+                        newBatsmanSelect.appendChild(option);
+                    }
+                });
+                
+                // Handle dismissal type change
+                document.getElementById('dismissalType').addEventListener('change', function() {
+                    const dismissalType = this.value;
+                    document.getElementById('caughtByField').classList.toggle('hidden', dismissalType !== 'caught');
+                    document.getElementById('runoutByField').classList.toggle('hidden', dismissalType !== 'runout');
+                });
+            };
+
+            // Cancel wicket action
+            document.getElementById('cancelWicketBtn').addEventListener('click', () => {
+                document.getElementById('wicketModal').classList.add('hidden');
+            });
+
+            // Confirm wicket
+            document.getElementById('confirmWicketBtn').addEventListener('click', () => {
+                const dismissalType = document.getElementById('dismissalType').value;
+                const newBatsmanIndex = parseInt(document.getElementById('newBatsman').value);
+                
+                const battingTeam = state.currentMatch.battingTeam;
+                const bowling = state.currentMatch.bowlingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                const bowler = state.currentMatch.teams[bowling].players[state.currentMatch.bowler];
+                
+                // Get out player (striker)
+                const outPlayerIndex = state.currentMatch.striker;
+                const outPlayer = batting.players[outPlayerIndex];
+                
+                // Mark as out
+                outPlayer.isOut = true;
+                outPlayer.status = 'Out - ' + dismissalType;
+                
+                // Update team wickets
+                batting.wickets += 1;
+                batting.balls += 1;
+                
+                // Update bowler stats (except runout)
+                if (dismissalType !== 'runout') {
+                    bowler.bowling.wickets += 1;
+                }
+                bowler.bowling.balls += 1;
+                
+                // Track ball in over history
+                if (!batting.overHistory) batting.overHistory = [];
+                batting.overHistory.push('W');
+                
+                // Update new batsman
+                const newBatsman = batting.players[newBatsmanIndex];
+                newBatsman.status = 'Batting';
+                newBatsman.inningPlayed = state.currentMatch.currentInnings;
+                
+                // Replace the striker with new batsman
+                state.currentMatch.striker = newBatsmanIndex;
+                
+                // Close modal
+                document.getElementById('wicketModal').classList.add('hidden');
+                
+                // Check if over completed
+                checkOverEnd();
+                
+                // Update UI
+                updateMatchPlayUI();
+                
+                // Check if innings or match completed
+                checkInningsEnd();
+            });
+
+            // Switch striker and non-striker
+            const switchStriker = () => {
+                const temp = state.currentMatch.striker;
+                state.currentMatch.striker = state.currentMatch.nonStriker;
+                state.currentMatch.nonStriker = temp;
+            };
+
+            // Check if over is completed
+            const checkOverEnd = () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                
+                // Check if over completed (6 legal deliveries)
+                if (batting.balls % 6 === 0 && batting.balls > 0) {
+                    endOver();
+                }
+            };
+
+            // End over manually
+            document.getElementById('endOverBtn').addEventListener('click', () => {
+                endOver();
+            });
+
+            // End over (change bowler and switch striker)
+            const endOver = () => {
+                // Switch ends
+                switchStriker();
+                
+                // Show new bowler modal
+                showBowlerModal();
+            };
+
+            // Show bowler selection modal
+            const showBowlerModal = () => {
+                document.getElementById('bowlerModal').classList.remove('hidden');
+                
+                // Get available bowlers
+                const bowlingTeam = state.currentMatch.teams[state.currentMatch.bowlingTeam];
+                const newBowlerSelect = document.getElementById('newBowler');
+                const currentBowler = state.currentMatch.bowler;
+                
+                newBowlerSelect.innerHTML = '';
+                
+                bowlingTeam.players.forEach((player, index) => {
+                    // Don't allow same bowler for consecutive overs
+                    if (index !== currentBowler) {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.innerText = player.name;
+                        newBowlerSelect.appendChild(option);
+                    }
+                });
+            };
+
+            // Cancel bowler selection
+            document.getElementById('cancelBowlerBtn').addEventListener('click', () => {
+                document.getElementById('bowlerModal').classList.add('hidden');
+            });
+
+            // Confirm new bowler
+            document.getElementById('confirmBowlerBtn').addEventListener('click', () => {
+                const newBowlerIndex = parseInt(document.getElementById('newBowler').value);
+                state.currentMatch.bowler = newBowlerIndex;
+                
+                // Close modal
+                document.getElementById('bowlerModal').classList.add('hidden');
+                
+                // Update UI
+                updateMatchPlayUI();
+            });
+
+            // Check if innings or match is completed
+            const checkInningsEnd = () => {
+                const battingTeam = state.currentMatch.battingTeam;
+                const batting = state.currentMatch.teams[battingTeam];
+                
+                // Check if all wickets lost
+                if (batting.wickets >= state.currentMatch.playersPerTeam - 1) {
+                    endInnings();
+                    return;
+                }
+                
+                // Check if all overs completed
+                if (batting.balls >= state.currentMatch.totalOvers * 6) {
+                    endInnings();
+                    return;
+                }
+                
+                // Check if target achieved in 2nd innings
+                if (state.currentMatch.currentInnings === 2) {
+                    const target = state.currentMatch.teams[state.currentMatch.bowlingTeam].score + 1;
+                    if (batting.score >= target) {
+                        endInnings();
+                        return;
+                    }
+                }
+                
+                // Update run rate for 2nd innings
+                updateRequiredRunRate();
+            };
+
+            // End current innings
+            const endInnings = () => {
+                // If 1st innings, switch to 2nd innings
+                if (state.currentMatch.currentInnings === 1) {
+                    // Switch batting and bowling teams
+                    const temp = state.currentMatch.battingTeam;
+                    state.currentMatch.battingTeam = state.currentMatch.bowlingTeam;
+                    state.currentMatch.bowlingTeam = temp;
+                    
+                    // Update innings
+                    state.currentMatch.currentInnings = 2;
+                    
+                    // Setup new innings
+                    setupInnings();
+                    setupMatchPlay();
+                } else {
+                    // End match
+                    endMatch();
+                }
+            };
+
+            // View scoreboard
+            document.getElementById('viewScoreboardBtn').addEventListener('click', () => {
+                updateScoreboard();
+                showScreen('scoreboardScreen');
+            });
+
+            // Back to match
+            document.getElementById('backToMatchBtn').addEventListener('click', () => {
+                showScreen('matchPlayScreen');
+            });
+
+            // End match
+            document.getElementById('endMatchBtn').addEventListener('click', () => {
+                endMatch();
+            });
+
+            // End match logic
+            const endMatch = () => {
+                state.currentMatch.isCompleted = true;
+                
+                // Calculate match result
+                const teamA = state.currentMatch.teams.teamA;
+                const teamB = state.currentMatch.teams.teamB;
+                
+                let result = '';
+                
+                if (teamA.score > teamB.score) {
+                    result = `${teamA.name} won by ${teamA.score - teamB.score} runs`;
+                } else if (teamB.score > teamA.score) {
+                    result = `${teamB.name} won by ${state.currentMatch.playersPerTeam - 1 - teamB.wickets} wickets`;
+                } else {
+                    result = 'Match tied!';
+                }
+                
+                state.currentMatch.result = result;
+                
+                // Save match to storage
+                saveMatch();
+                
+                // Show result screen
+                populateMatchResult();
+                showScreen('matchResultScreen');
+            };
+
+            // Populate match result screen
+            const populateMatchResult = () => {
+                const teamA = state.currentMatch.teams.teamA;
+                const teamB = state.currentMatch.teams.teamB;
+                
+                document.getElementById('finalTeam1Score').innerText = 
+                    `${teamA.name}: ${teamA.score}/${teamA.wickets} (${Math.floor(teamA.balls/6)}.${teamA.balls%6})`;
+                
+                document.getElementById('finalTeam2Score').innerText = 
+                    `${teamB.name}: ${teamB.score}/${teamB.wickets} (${Math.floor(teamB.balls/6)}.${teamB.balls%6})`;
+                
+                document.getElementById('finalMatchResult').innerText = state.currentMatch.result;
+            };
+
+            // View final scoreboard
+            document.getElementById('viewFinalScoreboardBtn').addEventListener('click', () => {
+                updateScoreboard();
+                showScreen('scoreboardScreen');
+            });
+
+            // Return to home
+            document.getElementById('returnToHomeBtn').addEventListener('click', () => {
+                showScreen('homeScreen');
+            });
+
+            // Update scoreboard
+            const updateScoreboard = () => {
+                const teamA = state.currentMatch.teams.teamA;
+                const teamB = state.currentMatch.teams.teamB;
+                
+                // Update match summary
+                document.getElementById('team1Score').innerText = 
+                    `${teamA.name}: ${teamA.score}/${teamA.wickets} (${Math.floor(teamA.balls/6)}.${teamA.balls%6})`;
+                
+                if (teamB.balls > 0 || state.currentMatch.currentInnings === 2) {
+                    document.getElementById('team2Score').classList.remove('hidden');
+                    document.getElementById('team2Score').innerText = 
+                        `${teamB.name}: ${teamB.score}/${teamB.wickets} (${Math.floor(teamB.balls/6)}.${teamB.balls%6})`;
+                } else {
+                    document.getElementById('team2Score').classList.add('hidden');
+                }
+                
+                if (state.currentMatch.isCompleted) {
+                    document.getElementById('matchResult').classList.remove('hidden');
+                    document.getElementById('matchResult').innerText = state.currentMatch.result;
+                } else {
+                    document.getElementById('matchResult').classList.add('hidden');
+                }
+                
+                // Update tabs
+                document.getElementById('inningsATab').innerText = teamA.name;
+                document.getElementById('inningsBTab').innerText = teamB.name;
+                
+                // Populate batting stats
+                populateBattingStats('teamABattingStats', teamA.players);
+                populateBattingStats('teamBBattingStats', teamB.players);
+                
+                // Populate bowling stats
+                populateBowlingStats('teamABowlingStats', teamA.players);
+                populateBowlingStats('teamBBowlingStats', teamB.players);
+            };
+
+            // Populate batting stats table
+            const populateBattingStats = (tableId, players) => {
+                const tableBody = document.getElementById(tableId);
+                tableBody.innerHTML = '';
+                
+                players.forEach(player => {
+                    if (player.inningPlayed !== 0) {
+                        const row = document.createElement('tr');
+                        const strikeRate = player.balls > 0 ? ((player.runs / player.balls) * 100).toFixed(2) : '0.00';
+                        
+                        row.innerHTML = `
+                            <td class="py-1">${player.name} ${player.status !== 'Yet to bat' && !player.isOut ? '*' : ''}</td>
+                            <td class="text-right py-1">${player.runs}</td>
+                            <td class="text-right py-1">${player.balls}</td>
+                            <td class="text-right py-1">${player.fours}</td>
+                            <td class="text-right py-1">${player.sixes}</td>
+                            <td class="text-right py-1">${strikeRate}</td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    }
+                });
+            };
+
+            // Populate bowling stats table
+            const populateBowlingStats = (tableId, players) => {
+                const tableBody = document.getElementById(tableId);
+                tableBody.innerHTML = '';
+                
+                players.forEach(player => {
+                    if (player.bowling.balls > 0) {
+                        const row = document.createElement('tr');
+                        const overs = Math.floor(player.bowling.balls / 6);
+                        const balls = player.bowling.balls % 6;
+                        const economy = player.bowling.balls > 0 ? 
+                            ((player.bowling.runs / (player.bowling.balls / 6)) || 0).toFixed(2) : '0.00';
+                        
+                        row.innerHTML = `
+                            <td class="py-1">${player.name}</td>
+                            <td class="text-right py-1">${overs}.${balls}</td>
+                            <td class="text-right py-1">${player.bowling.runs}</td>
+                            <td class="text-right py-1">${player.bowling.wickets}</td>
+                            <td class="text-right py-1">${economy}</td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    }
+                });
+            };
+
+            // Innings stats tab switching
+            document.getElementById('inningsATab').addEventListener('click', () => {
+                document.getElementById('inningsATab').classList.add('active');
+                document.getElementById('inningsBTab').classList.remove('active');
+                document.getElementById('inningsAStats').classList.remove('hidden');
+                document.getElementById('inningsBStats').classList.add('hidden');
+            });
+
+            document.getElementById('inningsBTab').addEventListener('click', () => {
+                document.getElementById('inningsBTab').classList.add('active');
+                document.getElementById('inningsATab').classList.remove('active');
+                document.getElementById('inningsBStats').classList.remove('hidden');
+                document.getElementById('inningsAStats').classList.add('hidden');
+            });
+
+            // Save match to localStorage
+            const saveMatch = () => {
+                // Find match in array or add it
+                const matchIndex = state.matches.findIndex(m => m.id === state.currentMatch.id);
+                
+                if (matchIndex >= 0) {
+                    state.matches[matchIndex] = { ...state.currentMatch };
+                } else {
+                    state.matches.push({ ...state.currentMatch });
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('gullyCricketMatches', JSON.stringify(state.matches));
+            };
+
+            // Handle dismissal type change
+            document.getElementById('dismissalType').addEventListener('change', function() {
+                const dismissalType = this.value;
+                document.getElementById('caughtByField').classList.toggle('hidden', dismissalType !== 'caught');
+                document.getElementById('runoutByField').classList.toggle('hidden', dismissalType !== 'runout');
+            });
+
+            // Initialize the app
+            initLocalStorage();
+            showScreen('homeScreen');
+        });
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
